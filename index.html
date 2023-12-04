@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+            <html style="margin-top: 0;padding: 0" >
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Администрирование</title>
+                    <style>
+                        /*Убирает отступы*/
+                        html,body {
+                            margin:0;
+                            padding:0;
+                        }
+
+                        /*Айди для таблички с exel*/
+                        #header{
+                            height: 80px;
+                            background-color: #B0E0E6;
+                            width: 100%;
+                        }
+
+                        /*Список пользователей*/
+                        #content{
+                            margin-top: 10px;
+                            height: 180px;
+                            background-color: #87CEFA;
+                        }
+
+                        /*Человек*/
+                        .person_table{
+                            border-width:2px;
+                            margin-left: 1%;
+                            margin-right: 1%;
+                            margin-top:3px;
+                            width: 98%;
+                            height: 30px;
+                            background-color: rgb(48, 173, 132);
+                        }
+                        
+                        /* внешние границы таблицы серого цвета толщиной 1px */
+table {
+   border: 1px solid grey;
+}
+/* границы ячеек первого ряда таблицы */
+th {
+   border: 1px solid grey;
+}
+/* границы ячеек тела таблицы */
+td {
+   border: 1px solid grey;
+}
+                    </style>
+                </head>
+                <body >
+                    <div id="header">Excel расписание</div>
+                    <div id="content">
+                        <table>
+                            <caption>Список пользователей</caption>
+                              <tr>
+                                <th>GITID</th>
+                                <th>TELID</th>
+                                <th>Фамилия</th>
+                                <th>Имя</th>
+                                <th>Отчество</th>
+                                <th>Группа</th>
+                                <th>Студент</th>
+                                <th>Учитель</th>
+                                <th>Админ</th>
+                                <th>Дать/забрать админку</th>
+                                <th>Дать/забрать роль учителя</th>
+                                <th>Дать/забрать роль студента</th>
+                              </tr>
+                              <tr>
+                                <td>1.</td>
+                                <td><a href = "https://ru.wikipedia.org/wiki/Имперская_фашистская_лига">Томаты свежие</a></td><td>кг</td><td>15,20</td><td>69,00</td><td>1048,80</td>
+                              </tr>
+                              <tr>
+                                <td>2.</td>
+                                <td>Огурцы свежие</td><td>кг</td><td>2,50</td><td>48,00</td><td>120,00</td>
+                              </tr>
+                            </table>
+                    </div>
+                </body>
+            </html>
