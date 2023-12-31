@@ -22,3 +22,15 @@ type person struct {
 	LEHRER      uint8  `json: "LEHRER"`
 	ADMINP      uint8  `json: "ADMINP"`
 }
+
+type para struct {
+	Number  string `json:"number"`
+	Class   string `json: "class"`
+	Teacher string `json: "teacher"`
+	Comment string `json : "comment"`
+}
+
+type kday struct {
+	Day   string   `json: "day"`
+	paras [10]para `json : "paras"`
+}

@@ -10,7 +10,7 @@ func setCookieHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		Domain:   "localhost",
-		MaxAge:   10,
+		MaxAge:   3600,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
