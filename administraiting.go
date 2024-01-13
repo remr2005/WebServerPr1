@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func auth_and_administrating(w http.ResponseWriter, r *http.Request) {
@@ -13,40 +16,48 @@ func auth_and_administrating(w http.ResponseWriter, r *http.Request) {
 	if token != "" {
 		for _, cookie := range r.Cookies() {
 			if cookie.Name == token {
-				resp, err := http.Get("http://localhost:8001/getPersons")
+				dec_token, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+					return []byte(SECRET), nil
+				})
 				if err != nil {
 					fmt.Println(err)
-					http.Redirect(w, r, "/admins/forbidden", http.StatusSeeOther)
 				}
-				persons := make([]person, 0)
-				_ = json.NewDecoder(resp.Body).Decode(&persons)
+				payload, ok := dec_token.Claims.(jwt.MapClaims)
+				if ok && (payload["expires_at"].(float64) >= float64(time.Now().Unix())) && payload["admin"].(bool) {
+					resp, err := http.Get("http://localhost:8001/getPersons")
+					if err != nil {
+						fmt.Println(err)
+						http.Redirect(w, r, "/admins/forbidden", http.StatusSeeOther)
+					}
+					persons := make([]person, 0)
+					_ = json.NewDecoder(resp.Body).Decode(&persons)
 
-				client := &http.Client{}
-				req, err := http.NewRequest("GET", "http://localhost:8001/getPersons/count", nil)
+					client := &http.Client{}
+					req, err := http.NewRequest("GET", "http://localhost:8001/getPersons/count", nil)
 
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				res, err := client.Do(req)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				defer res.Body.Close()
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					res, err := client.Do(req)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					defer res.Body.Close()
 
-				body, err := ioutil.ReadAll(res.Body)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				int_a, err := strconv.Atoi(string(body))
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				int_a *= 30
-				fmt.Fprint(w, `<!DOCTYPE html>
+					body, err := ioutil.ReadAll(res.Body)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					int_a, err := strconv.Atoi(string(body))
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					int_a *= 30
+					fmt.Fprint(w, `<!DOCTYPE html>
 				<html style="margin-top: 0;padding: 0" >
 					<head>
 						<meta charset="UTF-8">
@@ -92,9 +103,9 @@ func auth_and_administrating(w http.ResponseWriter, r *http.Request) {
 								margin-right: 1%;
 								margin-top:3px;
 								width: 98%;height:`)
-				fmt.Println(int_a)
-				fmt.Fprint(w, int_a)
-				fmt.Fprint(w, `px;
+					fmt.Println(int_a)
+					fmt.Fprint(w, int_a)
+					fmt.Fprint(w, `px;
 								background-color: rgb(48, 173, 132);
 							}
 							
@@ -114,8 +125,8 @@ func auth_and_administrating(w http.ResponseWriter, r *http.Request) {
 						</head>
 							<body >
 						<div id="header"><a href="`)
-				fmt.Fprint(w, "http://localhost:8000/admins/excel?token="+token)
-				fmt.Fprint(w, `">Excel расписание<br></a>
+					fmt.Fprint(w, "http://localhost:8000/admins/excel?token="+token)
+					fmt.Fprint(w, `">Excel расписание<br></a>
  						</div>
 						<div id="content">
 							<table>
@@ -134,49 +145,52 @@ func auth_and_administrating(w http.ResponseWriter, r *http.Request) {
 									<th>Дать/забрать роль учителя</th>
 									<th>Дать/забрать роль студента</th>
 								  </tr>`)
-				for _, i := range persons {
-					fmt.Fprint(w, "<tr><th>"+i.GITID+"</th>")
-					fmt.Fprint(w, "<th>"+i.TELID+"</th>")
-					fmt.Fprint(w, "<th>"+i.SURNAME+"</th>")
-					fmt.Fprint(w, "<th>"+i.NAMEP+"</th>")
-					fmt.Fprint(w, "<th>"+i.FATHER_NAME+"</th>")
-					fmt.Fprint(w, "<th>"+i.GROUPP+"</th>")
-					if i.STUDENT == 1 {
-						fmt.Fprint(w, `<th>1</th>`)
-					} else {
-						fmt.Fprint(w, `<th>0</th>`)
+					for _, i := range persons {
+						fmt.Fprint(w, "<tr><th>"+i.GITID+"</th>")
+						fmt.Fprint(w, "<th>"+i.TELID+"</th>")
+						fmt.Fprint(w, "<th>"+i.SURNAME+"</th>")
+						fmt.Fprint(w, "<th>"+i.NAMEP+"</th>")
+						fmt.Fprint(w, "<th>"+i.FATHER_NAME+"</th>")
+						fmt.Fprint(w, "<th>"+i.GROUPP+"</th>")
+						if i.STUDENT == 1 {
+							fmt.Fprint(w, `<th>1</th>`)
+						} else {
+							fmt.Fprint(w, `<th>0</th>`)
+						}
+						if i.LEHRER == 1 {
+							fmt.Fprint(w, `<th>1</th>`)
+						} else {
+							fmt.Fprint(w, `<th>0</th>`)
+						}
+						if i.ADMINP == 1 {
+							fmt.Fprint(w, `<th>1</th>`)
+						} else {
+							fmt.Fprint(w, `<th>0</th>`)
+						}
+						if i.ADMINP == 1 {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=ADMINP&sets=0&state="+token+"\">отобрать</a></th>")
+						} else {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=ADMINP&sets=1&state="+token+"\">дать</a></th>")
+						}
+						if i.LEHRER == 1 {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=LEHRER&sets=0&state="+token+"\">отобрать</a></th>")
+						} else {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=LEHRER&sets=1&state="+token+"\">дать</a></th>")
+						}
+						if i.STUDENT == 1 {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=STUDENT&sets=0&state="+token+"\">отобрать</a></th>")
+						} else {
+							fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=STUDENT&sets=1&state="+token+"\">дать</a></th>")
+						}
+						fmt.Fprint(w, `</tr>`)
 					}
-					if i.LEHRER == 1 {
-						fmt.Fprint(w, `<th>1</th>`)
-					} else {
-						fmt.Fprint(w, `<th>0</th>`)
-					}
-					if i.ADMINP == 1 {
-						fmt.Fprint(w, `<th>1</th>`)
-					} else {
-						fmt.Fprint(w, `<th>0</th>`)
-					}
-					if i.ADMINP == 1 {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=ADMINP&sets=0&state="+token+"\">отобрать</a></th>")
-					} else {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=ADMINP&sets=1&state="+token+"\">дать</a></th>")
-					}
-					if i.LEHRER == 1 {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=LEHRER&sets=0&state="+token+"\">отобрать</a></th>")
-					} else {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=LEHRER&sets=1&state="+token+"\">дать</a></th>")
-					}
-					if i.STUDENT == 1 {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=STUDENT&sets=0&state="+token+"\">отобрать</a></th>")
-					} else {
-						fmt.Fprint(w, "<th><a href=\"http://localhost:8001/changeVar/tel?tel_id="+i.TELID+"&vars=STUDENT&sets=1&state="+token+"\">дать</a></th>")
-					}
-					fmt.Fprint(w, `</tr>`)
-				}
-				fmt.Fprintf(w, `</table>
+					fmt.Fprintf(w, `</table>
 								  </div>
 							  </body>
 						  </html>`)
+				} else {
+					http.Redirect(w, r, "/admins/forbidden", http.StatusSeeOther)
+				}
 
 			} else {
 				http.Redirect(w, r, "/admins/forbidden", http.StatusSeeOther)

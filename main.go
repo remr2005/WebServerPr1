@@ -28,6 +28,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/set", setCookieHandler).Methods("GET")
+	r.HandleFunc("/delete", cookieDelete).Methods("GET")
 	r.HandleFunc("/shedule/odd", auth_and_administrating).Methods("GET")
 	r.HandleFunc("/admins", auth_and_administrating).Methods("GET")
 	r.HandleFunc("/admins/excel", excel).Methods("GET")

@@ -10,6 +10,7 @@ import (
 )
 
 func odd() {
+	drop_odd()
 	file, err := excelize.OpenFile("расписаниеЧЕТ.xlsx")
 	if err != nil {
 		fmt.Println(err)
@@ -25,6 +26,9 @@ func odd() {
 		var res string = "{\"day\":\"" + d + "\",\"array\":["
 		var _para_ para
 		for j, row := range rows {
+			if j == 0 {
+				continue
+			}
 			for i, col := range row {
 				if i == 0 {
 					_para_.Number = col
@@ -56,6 +60,7 @@ func odd() {
 }
 
 func even() {
+	drop_even()
 	file, err := excelize.OpenFile("расписаниеНЧЕТ.xlsx")
 	if err != nil {
 		fmt.Println(err)
@@ -71,6 +76,9 @@ func even() {
 		var res string = "{\"day\":\"" + d + "\",\"array\":["
 		var _para_ para
 		for j, row := range rows {
+			if j == 0 {
+				continue
+			}
 			for i, col := range row {
 				if i == 0 {
 					_para_.Number = col
@@ -101,8 +109,27 @@ func even() {
 	}
 }
 
-func drop() {
-	url := "http://127.0.0.1:8080/schedule/drop"
+func drop_even() {
+	url := "http://127.0.0.1:8080/schedule/drop/even"
+	method := "GET"
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+}
+
+func drop_odd() {
+	url := "http://127.0.0.1:8080/schedule/drop/odd"
 	method := "GET"
 
 	client := &http.Client{}

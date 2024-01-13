@@ -26,10 +26,11 @@ func login_from_bot(w http.ResponseWriter, r *http.Request) {
 	}
 	payload, ok := token.Claims.(jwt.MapClaims) // запись информмации из jwt в payload
 
-	if ok && token.Valid && payload["admin"].(bool) {
-		tokeExpiresAt := time.Now().Add(time.Second * time.Duration(35)) // время жизни токена
+	if ok && token.Valid && payload["admin"].(bool) && (payload["expires_at"].(float64) >= float64(time.Now().Unix())) {
+		tokeExpiresAt := time.Now().Add(time.Minute * time.Duration(15)) // время жизни токена
 		payload := jwt.MapClaims{
 			"id":         juest.ID,
+			"admin":      true,
 			"expires_at": tokeExpiresAt.Unix(),
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload) // создание нового токена
