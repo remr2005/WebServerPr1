@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 )
 
-func odd() {
+func odd(reader io.Reader) {
 	drop_odd()
-	file, err := excelize.OpenFile("расписаниеЧЕТ.xlsx")
+	file, err := excelize.OpenReader(reader)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -59,9 +60,9 @@ func odd() {
 	}
 }
 
-func even() {
+func even(reader io.Reader) {
 	drop_even()
-	file, err := excelize.OpenFile("расписаниеНЧЕТ.xlsx")
+	file, err := excelize.OpenReader(reader)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -111,7 +112,7 @@ func even() {
 
 func drop_even() {
 	url := "http://127.0.0.1:8080/schedule/drop/even"
-	method := "GET"
+	method := "POST"
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
@@ -130,7 +131,7 @@ func drop_even() {
 
 func drop_odd() {
 	url := "http://127.0.0.1:8080/schedule/drop/odd"
-	method := "GET"
+	method := "POST"
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
